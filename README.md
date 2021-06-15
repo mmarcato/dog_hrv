@@ -13,8 +13,8 @@ This repository constains scripts to process ECG(electrocardiogram) and RR(R to 
     - imports rr processed files and timestamps files
     - calculates hrv metrics considering the timestamp files 
     - outputs a final dataframe 
-4. data-hrv: final dataframe (row = dogs, columns = subtest_hrv-metric)
+4. data-hrv: final dataframe (row = dogs, columns = dc_subtest_hrv-metric)
 5. hrv-analysis: 
     - imports/combines hrv-data and dog demographics datasets 
-    - hypothesis test if there are differences between groups considering sex, breeds, source, **training outcome** 
+    - hypothesis test if there are differences between groups considering sex, breed, source, **training outcome** 
 
