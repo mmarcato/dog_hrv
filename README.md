@@ -3,8 +3,8 @@ This repository constains scripts to process ECG(electrocardiogram) and RR(R to 
 
 ## Folders
 
-0. data-raw: raw .csv files from start to finish of the behaviour test. Folder structure: Subject/DC_Device/filename.csv
-1. pre-process: scripts to process files (clean rr). 
+0. data-raw: raw .csv files from start to finish of the behaviour test. Folder structure: Subject/DC_Device/filename.csv. e.g. Douglas/1_Bioharness/'2019_05_20-13_36_29_BB_RR.csv'
+1. pre-process: scripts to process files -> import raw files / clean rr data with algorithm (avec). 
     - bioharness
     - polar
 2. data-processed: processed .csv files from start to finish. Folder structure: Subject/DC_Device/filename-processed.csv
