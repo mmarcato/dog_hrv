@@ -7,7 +7,6 @@ This repository constains scripts to process ECG(electrocardiogram) and RR(R to 
 1. pre-process: scripts to process files (clean rr). 
     - bioharness
     - polar
-    - combine both?
 2. data-processed: processed .csv files from start to finish. Folder structure: Subject/DC_Device/filename-processed.csv
 3. hrv-metrics: 
     - imports rr processed files and timestamps files
