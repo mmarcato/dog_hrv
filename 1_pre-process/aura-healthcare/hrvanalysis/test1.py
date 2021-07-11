@@ -1,16 +1,4 @@
-from time import time
-import sys
-import pandas as pd
-import numpy as np
-from math import sqrt
-from datetime import datetime
-from outlier import avec
-from scipy.special import erfinv
-import matplotlib.pyplot as plt
-from aura import aura
-from iqr_outlier import Outlier
-from all_plots import *
-
+from imports import *
 
 def main():
     path_polar = '../../1_Polar/2019-6-13_RR_Edrick.csv'
