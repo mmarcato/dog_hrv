@@ -54,8 +54,9 @@ def avec(sample):
 	# p is the confidence level
 	p = 0.75
 	# n is the length of the sample
-	n = len(sample)
-	for mid in range(w_size, n - w_size):
+	n = w_size
+	print(len(sample))
+	for mid in range(w_size, (len(sample) - w_size)):
 		# Mid and i are the same, both the middle number
 		start = mid - w_size
 		end = mid + w_size
@@ -75,7 +76,6 @@ def avec(sample):
 			new_list.append(xg)
 
 	# Adding last 20 numbers to array
-	for i in sample[n-w_size:]:
-		new_list.append(i)
+	new_list = new_list.append(sample[len(sample) - w_size:])
 
 	return new_list
