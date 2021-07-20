@@ -37,12 +37,31 @@ def main():
     plots.polar_bio(df_polar, df_bio, 'rr_raw')
     plots.polar_bio(df_polar, df_bio, 'rr_avec')
 
-    align(df_polar, df_bio)
+    df_alignment = align(df_polar, df_bio)
+    r1 = correlate(df_alignment)
 
 
+#starts from line 41
 def align(polar, bio):
-    print(polar)
+    df_align = polar.join(bio, how='outer', rsuffix='_bio')
+    #df_align.to_csv('Experiment2.csv')
+    p_list = df_align["rr_avec"]
+    b_list = df_align['rr_avec_bio']
 
+    combined = []
+    i = 0
+    while i < len(b_list):
+        if np.isnan(b_list[i]) and not np.isnan(p_list[i]):
+            combined.append(p_list[i])
+        elif np.isnan(p_list[i]) and not np.isnan(b_list[i]):
+            combined.append(b_list[i])
+        #elif np.isnan(b_list[i]) and np.isnan(p_list[i]):
+
+        i += 1
+        return combined
+
+def correlate(list):
+    print(np.correlate(list))
 
 # polar raw and avec
 def polar_avec(df, dir, subject, dc, filename):
