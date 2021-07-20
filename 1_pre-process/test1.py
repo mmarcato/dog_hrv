@@ -37,6 +37,12 @@ def main():
     plots.polar_bio(df_polar, df_bio, 'rr_raw')
     plots.polar_bio(df_polar, df_bio, 'rr_avec')
 
+    align(df_polar, df_bio)
+
+
+def align(polar, bio):
+    print(polar)
+
 
 # polar raw and avec
 def polar_avec(df, dir, subject, dc, filename):

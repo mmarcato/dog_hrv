@@ -29,53 +29,53 @@ def k(n, p):
 
 	return (k)
 
-def avec(sample):
+def avec(rr_raw, p = 0.74, n = 41):
 	'''
 	Takes an array of datapoints to evaluate whether xd is an outlier
 	where xd is the middle point [ ... , xd, ... ]
 
 	Parameters:
-	rr_sample - array of size n where xd is the middle point
+	rr_raw - list of rr data
 
 	Return:
-	np.nan  - if xd is an outlier
-	xd      - if xd is not an outlier
+	rr_avec
 
 	'''
-
-	#empty list
-	new_list = []
-	#window size is 20
-	w_size = 20
+	# window size is 20
+	w_size = int((n - 1)/2)
+	# rr size
+	rr_size = len(rr_raw)
+	
 	# Counting the number of outliers
 	count_outliers = 0
+	# empty list
+	rr_avec = []
+
 	# Adding first 20 numbers to array
-	new_list = sample[:w_size]
-	# p is the confidence level
-	p = 0.75
-	# n is the length of the sample
-	n = w_size
-	print(len(sample))
-	for mid in range(w_size, (len(sample) - w_size)):
+	rr_avec = rr_raw[:w_size]
+	for mid in range(w_size, (rr_size - w_size)):
 		# Mid and i are the same, both the middle number
 		start = mid - w_size
 		end = mid + w_size
 		''' for every iteration x is gonna be the 20 values before mid
 		and 20 numbers after
 		'''
-		x = sample[start : mid] + sample[mid : end]
+		x = rr_raw[start : mid] + rr_raw[mid : end]
 
-		xg = sample[mid]
+		xg = rr_raw[mid]
 		if abs(xg - statistics.mean(x)) > k(n, p) * statistics.stdev(x):
 			# if true add None to the list, same as returning np.nan
-			new_list.append(None)
+			rr_avec.append(None)
 			count_outliers += 1
 
 		else:
 			#otherwise add xg to the list
-			new_list.append(xg)
+			rr_avec.append(xg)
 
 	# Adding last 20 numbers to array
-	new_list = new_list.append(sample[len(sample) - w_size:])
+	rr_avec.extend(rr_raw[rr_size - w_size:])
 
-	return new_list
+	print('Number of Outliers detected in sample', count_outliers)
+	print('Percentage of Outliers detected in sample', (count_outliers/rr_size))
+
+	return (rr_avec)

@@ -1,4 +1,4 @@
-/venv
-/.vscode
+venv/
+.vscode/
 WS-HRV.code-workspace
 file.py

@@ -10,7 +10,7 @@ from scipy.special import erfinv
 import matplotlib.pyplot as plt
 from aura import aura
 from iqr_outlier import Outlier
-from all_plots import *
+import plots
 from scipy.stats import pearsonr
 from datetime import datetime as dt
 from hrvanalysis.extract_features import (get_time_domain_features, get_geometrical_features,
