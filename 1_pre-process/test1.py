@@ -30,21 +30,28 @@ def main():
     #print('{} seconds'.format(end - start))
 
     df_bio = bio_avec(df_bio, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
-
+    '''
     plots.raw_avec(df_polar, 'Polar')
     plots.raw_avec(df_bio, 'Bioharness')
 
     plots.polar_bio(df_polar, df_bio, 'rr_raw')
     plots.polar_bio(df_polar, df_bio, 'rr_avec')
+    '''
+    #df_alignment = align(df_polar, df_bio)
+    #r1 = correlate(df_alignment)
 
-    df_alignment = align(df_polar, df_bio)
-    r1 = correlate(df_alignment)
+    interpolation = interpolate(list(df_bio['rr_avec']), list(df_polar['rr_avec']))
+    #print(list(df_bio['rr_avec']))
+    df_bio['interbio'] = list(interpolation[0])
+    df_polar['interpolar'] = list(interpolation[1])
+
+    correlate(df_bio, df_polar)
 
 
 #starts from line 41
 def align(polar, bio):
     df_align = polar.join(bio, how='outer', rsuffix='_bio')
-    #df_align.to_csv('Experiment2.csv')
+    df_align.to_csv('Experiment2.csv')
     p_list = df_align["rr_avec"]
     b_list = df_align['rr_avec_bio']
 
@@ -60,8 +67,41 @@ def align(polar, bio):
         i += 1
         return combined
 
-def correlate(list):
-    print(np.correlate(list))
+def correlate(df_bio, df_polar):
+    # estimate of the correlation between the polar and bioharness
+
+    bio = list(df_bio['interbio'])
+    polar = list(df_polar['interpolar'])
+
+    # sliding window of 30
+    w_size = 15
+    i = w_size
+    j = w_size + 10
+    corrlist = [] # list of all the correlation coefficients
+    while i < len(bio) - w_size:
+        x = bio[i - w_size : i + w_size]
+        y = polar[j - w_size: j + w_size]
+        #print(len(x), len(y))
+        corcoef, p_value = pearsonr(x, y)
+        corrlist.append(corcoef)
+        i += 1
+        j += 2
+
+
+    correlation = sum(corrlist) / len(corrlist)
+    print(correlation)
+
+
+
+def interpolate(df_bio, df_polar):
+    bio = pd.Series(df_bio)
+    polar = pd.Series(df_polar)
+
+    interbio = round(bio.interpolate())
+    interpolar = round(polar.interpolate())
+
+    return interbio, interpolar
+
 
 # polar raw and avec
 def polar_avec(df, dir, subject, dc, filename):
