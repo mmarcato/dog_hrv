@@ -28,6 +28,7 @@ def aura(intervals):
     #plot_psd(nn_intervals)
 
     # Preprocessing
-    interpolate_nan_values(intervals)
+    #print(intervals)
+    return interpolate_nan_values(intervals)
     #remove_ectopic_beats(nn_intervals)
     #get_nn_intervals(nn_intervals)

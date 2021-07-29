@@ -30,22 +30,19 @@ def main():
     #print('{} seconds'.format(end - start))
 
     df_bio = bio_avec(df_bio, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
-    '''
+
+    interpolate(df_bio, df_polar)
+
+    #Raw Plots
     plots.raw_avec(df_polar, 'Polar')
     plots.raw_avec(df_bio, 'Bioharness')
-
+    # Avec Plots
     plots.polar_bio(df_polar, df_bio, 'rr_raw')
     plots.polar_bio(df_polar, df_bio, 'rr_avec')
-    '''
-    #df_alignment = align(df_polar, df_bio)
-    #r1 = correlate(df_alignment)
+    #Interpolation Plot
+    plots.polar_bio(df_polar, df_bio, 'Inter')
 
-    interpolation = interpolate(list(df_bio['rr_avec']), list(df_polar['rr_avec']))
-    #print(list(df_bio['rr_avec']))
-    df_bio['interbio'] = list(interpolation[0])
-    df_polar['interpolar'] = list(interpolation[1])
-
-    correlate(df_bio, df_polar)
+    #correlate(df_bio, df_polar)
 
 
 #starts from line 41
@@ -70,8 +67,8 @@ def align(polar, bio):
 def correlate(df_bio, df_polar):
     # estimate of the correlation between the polar and bioharness
 
-    bio = list(df_bio['interbio'])
-    polar = list(df_polar['interpolar'])
+    bio = list(df_bio['Inter'])
+    polar = list(df_polar['Inter'])
 
     # sliding window of 30
     w_size = 15
@@ -93,14 +90,11 @@ def correlate(df_bio, df_polar):
 
 
 
-def interpolate(df_bio, df_polar):
-    bio = pd.Series(df_bio)
-    polar = pd.Series(df_polar)
+def interpolate(bio, polar):
+    bio['Inter'] = interpolate_nan_values(list(bio['rr_avec']))
+    polar['Inter'] = interpolate_nan_values(list(polar['rr_avec']))
 
-    interbio = round(bio.interpolate())
-    interpolar = round(polar.interpolate())
-
-    return interbio, interpolar
+    return bio, polar
 
 
 # polar raw and avec
