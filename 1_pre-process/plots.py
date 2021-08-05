@@ -14,4 +14,11 @@ def polar_bio(polar, bio, column):
     plt.scatter(bio.index, bio[column], label = 'Bioharness')
     plt.legend()
     plt.title("{} - Polar vs Bioharness".format(column))
-    plt.show()   
+    plt.show()
+
+def all_plot(df, device):
+    plt.scatter(df.index, df['Inter'], label = 'Interpolated data')
+    plt.scatter(df.index, df['rr_avec'], label = 'AVEC data')
+    plt.legend()
+    plt.title("{} Graph".format(device))
+    plt.show()

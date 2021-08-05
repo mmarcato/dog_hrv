@@ -39,13 +39,102 @@ def main():
     # Avec Plots
     plots.polar_bio(df_polar, df_bio, 'rr_raw')
     plots.polar_bio(df_polar, df_bio, 'rr_avec')
-    #Interpolation Plot
+    # Interpolation Plot
     plots.polar_bio(df_polar, df_bio, 'Inter')
+    # All plot
+    plots.all_plot(df_polar, 'Polar')
+    plots.all_plot(df_bio, 'Bio')
 
-    #correlate(df_bio, df_polar)
+    Timesplit(df_polar, df_bio)
 
+'''The Timesplit function just breaks the timestamps down into tuples
+    so they are easier to pass to the  other functions.
+    This function also prints the correlation between the bioharness
+    and polar by taking values within every minute and creating an array
+'''
 
-#starts from line 41
+def interpolate(bio, polar):
+    bio['Inter'] = interpolate_nan_values(list(bio['rr_avec']))
+    polar['Inter'] = interpolate_nan_values(list(polar['rr_avec']))
+
+    return bio, polar
+
+def Timesplit(polar, bio):
+    times = []
+    time_tuples = [] # a is the list of time tuples
+    for date in polar.index:
+        times.append(str(date).strip().split()[1])
+
+    for time in times:
+        (H, M, S) = time.split(':')
+        time_tuples.append((H, M, S))
+
+    i = 0
+    timestamp = []
+    list = []
+    start = int(time_tuples[0][1])
+    end = int(time_tuples[-1][1])
+    num = start
+    count = 0
+    while i < len(time_tuples) and num < end:
+        if int(time_tuples[i][1]) != num:
+            list.append(get_index(time_tuples[i], bio, count, polar, i))
+            num += 1
+            count = 0
+            start_time = time_tuples[i]
+        if int(time_tuples[i][1]) == num:
+            count += 1
+        i += 1
+
+        corrlist = []
+        for g in list:
+            if isinstance(g, float):
+                corrlist.append(g)
+    correlation = sum(corrlist) / len(corrlist)
+    print('The correlation between the polar and bioharness is {}'.format(correlation))
+
+'''The get_indx function gets the index of the start of each minute of the polar device
+'''
+def get_index(timer, bio, count, polar, polar_index):
+    times = []
+    a = []
+    for date in bio.index:
+        times.append(str(date).strip().split()[1])
+
+    for time in times:
+        (H, M, S) = time.split(':')
+        a.append((H, M, S))
+
+    i = 0
+    while i < len(a):
+        if int(a[i][1]) == int(timer[1]):
+            return correlation(i, count, bio, polar, polar_index)
+            break
+        i += 1
+
+''' correlation gets the correlation coefficient and passes it back to the
+    Timesplit funciton
+'''
+def correlation(index, count, bio, polar, polar_index):
+    corrlist = []
+    bio_inter = list(bio["Inter"])
+    polar_inter = list(polar["Inter"])
+    polar_list = polar_inter[polar_index: polar_index + count]
+
+    bio_list = []
+    n = 0
+    while n < len(bio_inter):
+        if index + count > len(bio):
+            break
+        else:
+            bio_list = bio_inter[index: index + count]
+        n += 1
+    if len(polar_list) == len(bio_list):
+        corcoef, p_value = pearsonr(bio_list, polar_list)
+
+        return corcoef
+
+#NOT BEING USED
 def align(polar, bio):
     df_align = polar.join(bio, how='outer', rsuffix='_bio')
     df_align.to_csv('Experiment2.csv')
@@ -64,6 +153,7 @@ def align(polar, bio):
         i += 1
         return combined
 
+##NOT BEING USED
 def correlate(df_bio, df_polar):
     # estimate of the correlation between the polar and bioharness
 
@@ -87,15 +177,6 @@ def correlate(df_bio, df_polar):
 
     correlation = sum(corrlist) / len(corrlist)
     print(correlation)
-
-
-
-def interpolate(bio, polar):
-    bio['Inter'] = interpolate_nan_values(list(bio['rr_avec']))
-    polar['Inter'] = interpolate_nan_values(list(polar['rr_avec']))
-
-    return bio, polar
-
 
 # polar raw and avec
 def polar_avec(df, dir, subject, dc, filename):
