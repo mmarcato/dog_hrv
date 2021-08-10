@@ -1,4 +1,4 @@
-def Outlier(nn_intervals):
+def iqr_outliers(nn_intervals):
     outliers = []
     #sort nn_intervals so outliers are easier to see
     sort = sorted(nn_intervals)

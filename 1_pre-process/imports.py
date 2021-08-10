@@ -9,7 +9,6 @@ from outlier import avec
 from scipy.special import erfinv
 import matplotlib.pyplot as plt
 from aura import aura
-from iqr_outlier import Outlier
 import plots
 from scipy.stats import pearsonr
 from datetime import datetime as dt

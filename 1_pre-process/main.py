@@ -25,13 +25,14 @@ def main():
 
     #timing the program
     #start = time()
+    # add column for with outlier detection using avec function
     df_polar = polar_avec(df_polar, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
     #end = time()
     #print('{} seconds'.format(end - start))
 
     df_bio = bio_avec(df_bio, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
 
-    interpolate(df_bio, df_polar)
+    df_bio, df_polar = interpolate(df_bio, df_polar)
     '''
     #Raw Plots
     plots.raw_avec(df_polar, 'Polar')
@@ -47,6 +48,26 @@ def main():
     '''
     #Timesplit(df_polar, df_bio)
     HRV(df_polar)
+
+    # dataframe with Dog name and DC to import
+    df_dogs = pd.DataFrame({
+                'Dog' : ['Edrick'],
+                'DC' : [1]
+        })
+    # path where all timestamp files are saved
+    ts_path = os.path.join(projectdir, '0_data-raw')
+    # dataframe containing all timestamps 
+    df_stats, df_episodes = timestamps(df_dogs, ts_path)
+
+    # read the nested dictionary ['Dog', 'DC'] containing, the timestamps where the episodes happen as a dataframe where columns ['Episode', 'Timestamp']
+
+    # use the episode timestamps for 'Base-Walking' to calculate hrv metrics 
+
+
+
+# ------------------------------------------------------------------------- #
+#                                Functions                                  #
+# ------------------------------------------------------------------------- #
 
 # Calculate HRV Analysis
 def HRV(df):
@@ -245,6 +266,60 @@ def import_bio(path):
     df['RtoR'] = round(df['RtoR'].abs()*1000)
     df.rename(columns = {'RtoR': 'rr_raw'}, inplace = True)
     return df
+
+def timestamps(df_data, base_dir): 
+    """
+    Imports data from timestamps files, organise them in dictionaries and return
+
+    Parameters
+        -------
+        df_data : DataFrame
+            columns are subjects, dcs: unique combinations of dog name & dc number
+        base_dir : str
+            directory where timestamps are located
+
+    Returns
+        -------
+        df_ep: DataFrame
+            indexed by'Timestamps' containing 'Episode', 'Ep-VT' and 'Duration'
+        df_stats: DataFrame
+            containing 'Subject', 'DC', 'Date', 'Start time' 
+    """
+
+    print('\nImporting Timestamp files - Episode and Position Data') 
+    stats = []
+    df_ep, df_pos = {},{}
+
+    for subj in df_data['Dog'].unique():
+        df_ep[subj], df_pos[subj] = {},{}
+        for dc in df_data.loc[df_data['Dog'] == subj, 'DC']:
+            df_ep[subj][dc], df_pos[subj][dc] = None, None
+            f_name = '%s\\%s\\%s_Timestamps.csv' % (base_dir, subj, dc) 
+            # if the timestamp file is found 
+            if os.path.exists(f_name):            
+                # Read the information about the behaviour test 
+                df_info = pd.read_csv(f_name, index_col = 0, nrows = 4, usecols = [0,1], dayfirst = False)
+                date = df_info[subj]['Date']
+                time = df_info[subj]['Start time']     
+                stats.append([subj, dc, date, time])
+                
+                dt = pd.to_datetime(date + time, format = '%d/%m/%Y%H:%M:%S' )       
+
+                # Read the EPISODE Virtual Time (VT) 
+                df_ep[subj][dc] = pd.read_csv(f_name, skiprows = 6, usecols = ['Episode', 'Ep-VT']).dropna()
+                # Create new column for the episode Real Time (RT)
+                df_ep[subj][dc].index = dt + pd.to_timedelta(df_ep[subj][dc]['Ep-VT'])         
+                # Create new column for the episode Duration
+                df_ep[subj][dc]['Duration'] = df_ep[subj][dc].index.to_series().diff().shift(-1)
+                df_ep[subj][dc]['Episode'] = df_ep[subj][dc]['Episode'].str.lower()
+                
+            else:
+                print('Error loading', subj, dc)
+    df_info = pd.DataFrame(stats, columns = ['Subject', 'DC', 'Date', 'Start time'])
+    #logger.info('\t Imported Timestamps for \n{}'.format(df_info))
+
+    return(df_info, df_ep)
+
 
 if __name__ == '__main__':
     main()
