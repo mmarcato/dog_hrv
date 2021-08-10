@@ -32,7 +32,7 @@ def main():
     df_bio = bio_avec(df_bio, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
 
     interpolate(df_bio, df_polar)
-
+    '''
     #Raw Plots
     plots.raw_avec(df_polar, 'Polar')
     plots.raw_avec(df_bio, 'Bioharness')
@@ -44,8 +44,22 @@ def main():
     # All plot
     plots.all_plot(df_polar, 'Polar')
     plots.all_plot(df_bio, 'Bio')
+    '''
+    #Timesplit(df_polar, df_bio)
+    HRV(df_polar)
 
-    Timesplit(df_polar, df_bio)
+# Calculate HRV Analysis
+def HRV(df):
+    for item in get_time_domain_features(df["rr_raw"]).items():
+        print(item)
+    '''print(get_geometrical_features(df["Inter"]))
+    print(get_sampen(df["Inter"]))
+    print(get_csi_cvi_features(df["Inter"]))
+    print(get_poincare_plot_features(df["Inter"]))
+    print(get_frequency_domain_features(df["Inter"]))
+    print(get_poincare_plot_features(df["Inter"]))
+    '''
+
 
 '''The Timesplit function just breaks the timestamps down into tuples
     so they are easier to pass to the  other functions.
@@ -90,8 +104,9 @@ def Timesplit(polar, bio):
         for g in list:
             if isinstance(g, float):
                 corrlist.append(g)
-    correlation = sum(corrlist) / len(corrlist)
-    print('The correlation between the polar and bioharness is {}'.format(correlation))
+    print(len(corrlist))
+    #correlation = sum(corrlist) / len(corrlist)
+    #print('The correlation between the polar and bioharness is {}'.format(correlation))
 
 '''The get_indx function gets the index of the start of each minute of the polar device
 '''

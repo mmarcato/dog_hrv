@@ -17,8 +17,11 @@ def polar_bio(polar, bio, column):
     plt.show()
 
 def all_plot(df, device):
+    plt.scatter(df.index, df['rr_raw'], label = 'Raw data')
     plt.scatter(df.index, df['Inter'], label = 'Interpolated data')
     plt.scatter(df.index, df['rr_avec'], label = 'AVEC data')
+
+
     plt.legend()
     plt.title("{} Graph".format(device))
     plt.show()
