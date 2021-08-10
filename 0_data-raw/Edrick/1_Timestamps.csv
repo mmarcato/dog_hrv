@@ -1,0 +1,43 @@
+Subject,Edrick,,
+Session,1,,
+Date,13/06/2019,,
+Start time,13:38:51,,
+Device,"Polar, Bioharness, Actigraph",,
+Notes,,,
+Episode,Ep-VT,Position,Pos-VT
+Familiarization,00:00:00,Walking,00:01:18
+Call back,00:00:58,Moving,00:02:10
+Base-Walking,00:01:08,Walking,00:02:12
+Base-Standing,00:02:34,Moving,00:02:16
+Base-Sitting,00:03:06,Standing,00:02:34
+Base-Lying,00:03:42,Sitting,00:03:06
+Interval,00:04:41,Lying Down,00:03:42
+Body check,00:04:49,Moving,00:04:41
+Interval,00:05:24,Jumping up,00:04:44
+Towel,00:05:34,Standing,00:04:46
+Interval,00:06:00,Jumping down,00:05:25
+Object,00:06:36,Moving,00:05:27
+Human,00:06:41,Jumping up,00:06:01
+Car,00:06:45,Moving,00:06:02
+Object,00:06:42,Sitting,00:07:47
+Object,00:07:00,Lying Down,00:08:22
+Human,00:07:05,Moving,00:08:50
+Car,00:07:09,Sitting,00:09:08
+Object,00:07:16,Walking,00:09:16
+Interval,00:07:22,Standing,00:09:22
+Kong stare,00:07:47,Moving,00:09:26
+Kong play,00:08:30,Standing,00:09:51
+Kong back,00:08:49,Sitting,00:10:00
+Interval,00:08:54,Lying Down,00:10:27
+Dog,00:09:11,Moving,00:11:01
+Call back,00:09:26,Standing,00:11:12
+Interval,00:09:39,Moving,00:12:14
+Crate close,00:09:52,Walking,00:12:49
+Crate open,00:11:02,,
+Isolation,00:11:15,,
+Reunion,00:12:14,,
+Petting,00:12:20,,
+Stops petting,00:12:40,,
+Interval,00:12:47,,
+Noise,00:13:06,,
+Finish,00:13:24,,
