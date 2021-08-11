@@ -7,7 +7,6 @@ sys.path.append(os.path.dirname(projectdir))
 
 def main():
 
-
     path_polar = os.path.join(projectdir, '0_data-raw\\Edrick\\1_Polar\\2019-6-13_RR_Edrick.csv')
     path_bio =  os.path.join(projectdir, '0_data-raw\\Edrick\\1_Bioharness\\2019_06_13-13_38_51_BB_RR.csv')
 
@@ -47,7 +46,7 @@ def main():
     plots.all_plot(df_bio, 'Bio')
     '''
     #Timesplit(df_polar, df_bio)
-    HRV(df_polar)
+    #HRV(df_polar)
 
     # dataframe with Dog name and DC to import
     df_dogs = pd.DataFrame({
@@ -56,13 +55,12 @@ def main():
         })
     # path where all timestamp files are saved
     ts_path = os.path.join(projectdir, '0_data-raw')
-    # dataframe containing all timestamps 
+    # dataframe containing all timestamps
     df_stats, df_episodes = timestamps(df_dogs, ts_path)
 
     # read the nested dictionary ['Dog', 'DC'] containing, the timestamps where the episodes happen as a dataframe where columns ['Episode', 'Timestamp']
 
-    # use the episode timestamps for 'Base-Walking' to calculate hrv metrics 
-
+    # use the episode timestamps for 'Base-Walking' to calculate hrv metrics
 
 
 # ------------------------------------------------------------------------- #
@@ -170,50 +168,6 @@ def correlation(index, count, bio, polar, polar_index):
 
         return corcoef
 
-#NOT BEING USED
-def align(polar, bio):
-    df_align = polar.join(bio, how='outer', rsuffix='_bio')
-    df_align.to_csv('Experiment2.csv')
-    p_list = df_align["rr_avec"]
-    b_list = df_align['rr_avec_bio']
-
-    combined = []
-    i = 0
-    while i < len(b_list):
-        if np.isnan(b_list[i]) and not np.isnan(p_list[i]):
-            combined.append(p_list[i])
-        elif np.isnan(p_list[i]) and not np.isnan(b_list[i]):
-            combined.append(b_list[i])
-        #elif np.isnan(b_list[i]) and np.isnan(p_list[i]):
-
-        i += 1
-        return combined
-
-##NOT BEING USED
-def correlate(df_bio, df_polar):
-    # estimate of the correlation between the polar and bioharness
-
-    bio = list(df_bio['Inter'])
-    polar = list(df_polar['Inter'])
-
-    # sliding window of 30
-    w_size = 15
-    i = w_size
-    j = w_size + 10
-    corrlist = [] # list of all the correlation coefficients
-    while i < len(bio) - w_size:
-        x = bio[i - w_size : i + w_size]
-        y = polar[j - w_size: j + w_size]
-        #print(len(x), len(y))
-        corcoef, p_value = pearsonr(x, y)
-        corrlist.append(corcoef)
-        i += 1
-        j += 2
-
-
-    correlation = sum(corrlist) / len(corrlist)
-    print(correlation)
-
 # polar raw and avec
 def polar_avec(df, dir, subject, dc, filename):
     df['rr_avec'] = avec(list(df['rr_raw']))
@@ -267,7 +221,7 @@ def import_bio(path):
     df.rename(columns = {'RtoR': 'rr_raw'}, inplace = True)
     return df
 
-def timestamps(df_data, base_dir): 
+def timestamps(df_data, base_dir):
     """
     Imports data from timestamps files, organise them in dictionaries and return
 
@@ -283,10 +237,10 @@ def timestamps(df_data, base_dir):
         df_ep: DataFrame
             indexed by'Timestamps' containing 'Episode', 'Ep-VT' and 'Duration'
         df_stats: DataFrame
-            containing 'Subject', 'DC', 'Date', 'Start time' 
+            containing 'Subject', 'DC', 'Date', 'Start time'
     """
 
-    print('\nImporting Timestamp files - Episode and Position Data') 
+    print('\nImporting Timestamp files - Episode and Position Data')
     stats = []
     df_ep, df_pos = {},{}
 
@@ -294,25 +248,25 @@ def timestamps(df_data, base_dir):
         df_ep[subj], df_pos[subj] = {},{}
         for dc in df_data.loc[df_data['Dog'] == subj, 'DC']:
             df_ep[subj][dc], df_pos[subj][dc] = None, None
-            f_name = '%s\\%s\\%s_Timestamps.csv' % (base_dir, subj, dc) 
-            # if the timestamp file is found 
-            if os.path.exists(f_name):            
-                # Read the information about the behaviour test 
+            f_name = '%s\\%s\\%s_Timestamps.csv' % (base_dir, subj, dc)
+            # if the timestamp file is found
+            if os.path.exists(f_name):
+                # Read the information about the behaviour test
                 df_info = pd.read_csv(f_name, index_col = 0, nrows = 4, usecols = [0,1], dayfirst = False)
                 date = df_info[subj]['Date']
-                time = df_info[subj]['Start time']     
+                time = df_info[subj]['Start time']
                 stats.append([subj, dc, date, time])
-                
-                dt = pd.to_datetime(date + time, format = '%d/%m/%Y%H:%M:%S' )       
 
-                # Read the EPISODE Virtual Time (VT) 
+                dt = pd.to_datetime(date + time, format = '%d/%m/%Y%H:%M:%S' )
+
+                # Read the EPISODE Virtual Time (VT)
                 df_ep[subj][dc] = pd.read_csv(f_name, skiprows = 6, usecols = ['Episode', 'Ep-VT']).dropna()
                 # Create new column for the episode Real Time (RT)
-                df_ep[subj][dc].index = dt + pd.to_timedelta(df_ep[subj][dc]['Ep-VT'])         
+                df_ep[subj][dc].index = dt + pd.to_timedelta(df_ep[subj][dc]['Ep-VT'])
                 # Create new column for the episode Duration
                 df_ep[subj][dc]['Duration'] = df_ep[subj][dc].index.to_series().diff().shift(-1)
                 df_ep[subj][dc]['Episode'] = df_ep[subj][dc]['Episode'].str.lower()
-                
+
             else:
                 print('Error loading', subj, dc)
     df_info = pd.DataFrame(stats, columns = ['Subject', 'DC', 'Date', 'Start time'])
