@@ -58,6 +58,8 @@ def main():
     # dataframe containing all timestamps
     df_stats, df_episodes = timestamps(df_dogs, ts_path)
 
+    slide_hrv(df_episodes, finish_time, df_bio)
+
     # read the nested dictionary ['Dog', 'DC'] containing, the timestamps where the episodes happen as a dataframe where columns ['Episode', 'Timestamp']
 
     # use the episode timestamps for 'Base-Walking' to calculate hrv metrics
@@ -67,9 +69,48 @@ def main():
 #                                Functions                                  #
 # ------------------------------------------------------------------------- #
 
+def slide_hrv(df_ep, finish_time, df):
+    '''
+    Works its way through the episodes and calculates the hrv for that episode
+    '''
+    episodes = df_ep['Edrick'][1]['Episode']
+    dates = df_ep['Edrick'][1].index
+
+    times = [] # times is the start times of
+    for time in dates:
+        # Turning the timestamp into datetime
+        times.append(time.time())
+
+    # list of all the timestamps from the df
+    df_times = list(df.index)
+
+    clock = 0 #used to iterate through the episodes
+    while clock < len(episodes):
+        intervals = []
+        # The last episode is finish
+        if clock == len(episodes) - 1:
+            print('Finish: {}'.format(finish_time))
+            break
+        i = 0
+        while i < len(df_times):
+            # if time in episode range add to intervals list
+            if df_times[i].time() > times[clock] and df_times[i].time() < times[clock + 1]:
+                intervals.append(list(df['Inter'])[i])
+            i += 1
+
+        print('HRV Analysis for {}'.format(episodes[clock]))
+        print('Start time:{}'.format(times[clock]))
+        print('End time: {}'.format(times[clock + 1]))
+
+        if len(intervals) > 1:
+            HRV(intervals)
+            print('\n')
+        clock += 1
+
+
 # Calculate HRV Analysis
-def HRV(df):
-    for item in get_time_domain_features(df["rr_raw"]).items():
+def HRV(intervals):
+    for item in get_time_domain_features(intervals).items():
         print(item)
     '''print(get_geometrical_features(df["Inter"]))
     print(get_sampen(df["Inter"]))
@@ -123,7 +164,7 @@ def Timesplit(polar, bio):
         for g in list:
             if isinstance(g, float):
                 corrlist.append(g)
-    print(len(corrlist))
+    #print(len(corrlist))
     #correlation = sum(corrlist) / len(corrlist)
     #print('The correlation between the polar and bioharness is {}'.format(correlation))
 
@@ -264,13 +305,16 @@ def timestamps(df_data, base_dir):
                 # Create new column for the episode Real Time (RT)
                 df_ep[subj][dc].index = dt + pd.to_timedelta(df_ep[subj][dc]['Ep-VT'])
                 # Create new column for the episode Duration
+                ''' Add finish time column'''
                 df_ep[subj][dc]['Duration'] = df_ep[subj][dc].index.to_series().diff().shift(-1)
+                ''' ERROR CHECK'''
                 df_ep[subj][dc]['Episode'] = df_ep[subj][dc]['Episode'].str.lower()
 
             else:
                 print('Error loading', subj, dc)
     df_info = pd.DataFrame(stats, columns = ['Subject', 'DC', 'Date', 'Start time'])
     #logger.info('\t Imported Timestamps for \n{}'.format(df_info))
+
 
     return(df_info, df_ep)
 
