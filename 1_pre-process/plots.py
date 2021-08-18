@@ -23,3 +23,14 @@ def all_plot(df, device):
     plt.legend()
     plt.title("{} Graph".format(device))
     plt.show()
+
+def hrv_plot(bio, polar):
+    i = 18#########################
+    while i < len(bio.columns):
+        plt.scatter(bio['episodes'], bio[bio.columns[i]], label =  'Bioharness data')
+        plt.scatter(polar['episodes'], polar[polar.columns[i]], label =  'Polar data')
+        plt.legend()
+        plt.title("{} - Bio Vs Polar".format(bio.columns[i]))
+        plt.xticks(rotation=45)
+        plt.show()
+        i += 1

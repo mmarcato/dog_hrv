@@ -64,7 +64,7 @@ def main():
     #polar_hrv(df_polar_hrv, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
     #bio_hrv(df_bio_hrv, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
 
-    hrv_plot(df_bio_hrv, df_polar_hrv) #######################
+    plots.hrv_plot(df_bio_hrv, df_polar_hrv)
 
     # read the nested dictionary ['Dog', 'DC'] containing, the timestamps where the episodes happen as a dataframe where columns ['Episode', 'Timestamp']
 
@@ -187,17 +187,6 @@ def bio_hrv(df, dir, subject, dc, filename):
 
     path = os.path.join(projectdir, "5-hrv-analysis", subject, '{}_Bioharness'.format(dc), filename)
     df.to_csv(path, index=True)
-
-def hrv_plot(bio, polar):
-    i = 17
-    while i < len(bio.columns):
-        plt.scatter(bio['episodes'], bio[bio.columns[i]], label =  'Bioharness data')
-        plt.scatter(polar['episodes'], polar[polar.columns[i]], label =  'Polar data')
-        plt.legend()
-        plt.title("{} - Bio Vs Polar".format(bio.columns[i]))
-        plt.xticks(rotation=45)
-        plt.show()
-        i += 1
 
 # Calculate HRV Analysis
 # More parameters? dog, dc
