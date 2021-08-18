@@ -58,7 +58,13 @@ def main():
     # dataframe containing all timestamps
     df_stats, df_episodes = timestamps(df_dogs, ts_path)
 
-    slide_hrv(df_episodes, finish_time, df_bio)
+    df_bio_hrv = slide_hrv(df_episodes, finish_time, df_bio)
+    df_polar_hrv = slide_hrv(df_episodes, finish_time, df_polar)
+
+    #polar_hrv(df_polar_hrv, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
+    #bio_hrv(df_bio_hrv, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
+
+    hrv_plot(df_bio_hrv, df_polar_hrv) #######################
 
     # read the nested dictionary ['Dog', 'DC'] containing, the timestamps where the episodes happen as a dataframe where columns ['Episode', 'Timestamp']
 
@@ -70,26 +76,46 @@ def main():
 # ------------------------------------------------------------------------- #
 
 def slide_hrv(df_ep, finish_time, df):
-    '''
+    """
     Works its way through the episodes and calculates the hrv for that episode
-    '''
+
+    Parameters
+        -------
+        df_ep : Dictionary
+            columns are subjects, dcs: unique combinations of dog name & dc number
+        finish_time : str
+            The time the testing was finished
+        df : DataFrame
+            The data frame of the chosen device you want to calculate hrv for
+
+    Returns
+        -------
+        DataFrame of hrv calculations for each episode
+    """
+    df_hrv = pd.DataFrame()
     episodes = df_ep['Edrick'][1]['Episode']
     dates = df_ep['Edrick'][1].index
 
-    times = [] # times is the start times of
+    ep_list = [] # list of episodes for df use
+    start_list = [] # list of start times of each episode for df use
+    times = [] # times is the start times of each episode
     for time in dates:
         # Turning the timestamp into datetime
         times.append(time.time())
 
+    #df_hrv['start'] = times
+    #print(df_hrv)
+
     # list of all the timestamps from the df
     df_times = list(df.index)
 
+    dataframe_prep = []
     clock = 0 #used to iterate through the episodes
     while clock < len(episodes):
         intervals = []
         # The last episode is finish
         if clock == len(episodes) - 1:
-            print('Finish: {}'.format(finish_time))
+            #print('Finish: {}'.format(finish_time))
             break
         i = 0
         while i < len(df_times):
@@ -97,26 +123,91 @@ def slide_hrv(df_ep, finish_time, df):
             if df_times[i].time() > times[clock] and df_times[i].time() < times[clock + 1]:
                 intervals.append(list(df['Inter'])[i])
             i += 1
-
+        '''
         print('HRV Analysis for {}'.format(episodes[clock]))
         print('Start time:{}'.format(times[clock]))
         print('End time: {}'.format(times[clock + 1]))
+        '''
+        if len(intervals) > 1 and episodes[clock] != 'interval':
+            dataframe_prep.append(HRV(intervals))
+            ep_list.append(episodes[clock])
+            start_list.append(times[clock])
 
-        if len(intervals) > 1:
-            HRV(intervals)
-            print('\n')
         clock += 1
 
+    # Adding to df_hrv
+    df_hrv['episodes'] = ep_list # adding episodes to df_hrv
+    df_hrv['start'] = start_list # adding start times to df_hrv
+
+    fin_list = start_list # list of finish times of each episode for df use
+    fin_list.pop(0)
+    fin_list.append(finish_time)
+
+    df_hrv['finish'] = fin_list # adding finish times to df_hrv
+
+    j = 0
+    #print(dataframe_prep[0])
+    while j < len(dataframe_prep[0]):
+        name = list(dataframe_prep[j].keys())[j]
+        name_list = []
+        i = 0
+        while i < len(dataframe_prep):
+            name_list.append(list(dataframe_prep[i].values())[0])
+            i += 1
+        df_hrv[name] = name_list
+        j += 1
+
+    return df_hrv
+
+
+def polar_hrv(df, dir, subject, dc, filename):
+    # Creating folder structure
+    subject_dir = os.path.join(dir, "5-hrv-analysis", subject)
+    if not os.path.exists(subject_dir):
+        os.mkdir(subject_dir)
+
+    device_dir = os.path.join(dir, "5-hrv-analysis", subject, '{}_Polar'.format(dc))
+    print(device_dir)
+    if not os.path.exists(device_dir):
+        os.mkdir(device_dir)
+
+    path = os.path.join(projectdir, "5-hrv-analysis", subject, '{}_Polar'.format(dc), filename)
+    df.to_csv(path, index=True)
+
+def bio_hrv(df, dir, subject, dc, filename):
+    # Creating folder structure
+    subject_dir = os.path.join(dir, "5-hrv-analysis", subject)
+    if not os.path.exists(subject_dir):
+        os.mkdir(subject_dir)
+
+    device_dir = os.path.join(dir, "5-hrv-analysis", subject, '{}_Bioharness'.format(dc))
+    print(device_dir)
+    if not os.path.exists(device_dir):
+        os.mkdir(device_dir)
+
+    path = os.path.join(projectdir, "5-hrv-analysis", subject, '{}_Bioharness'.format(dc), filename)
+    df.to_csv(path, index=True)
+
+def hrv_plot(bio, polar):
+    i = 17
+    while i < len(bio.columns):
+        plt.scatter(bio['episodes'], bio[bio.columns[i]], label =  'Bioharness data')
+        plt.scatter(polar['episodes'], polar[polar.columns[i]], label =  'Polar data')
+        plt.legend()
+        plt.title("{} - Bio Vs Polar".format(bio.columns[i]))
+        plt.xticks(rotation=45)
+        plt.show()
+        i += 1
 
 # Calculate HRV Analysis
+# More parameters? dog, dc
 def HRV(intervals):
-    for item in get_time_domain_features(intervals).items():
-        print(item)
+    return get_time_domain_features(intervals)
+    #print(get_frequency_domain_features(intervals))
     '''print(get_geometrical_features(df["Inter"]))
     print(get_sampen(df["Inter"]))
     print(get_csi_cvi_features(df["Inter"]))
     print(get_poincare_plot_features(df["Inter"]))
-    print(get_frequency_domain_features(df["Inter"]))
     print(get_poincare_plot_features(df["Inter"]))
     '''
 
