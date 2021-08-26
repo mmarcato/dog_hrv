@@ -150,13 +150,13 @@ def slide_hrv(df_ep, finish_time, df):
 
     j = 0
     while j < len(dataframe_prep[0]):
-        name = list(dataframe_prep[j].keys())[j]
-        name_list = []
+        name = list(dataframe_prep[j].keys())[j] # name of each episode
+        name_list = [] # list of values of each episode
         i = 0
         while i < len(dataframe_prep):
-            name_list.append(list(dataframe_prep[i].values())[0])
+            name_list.append(list(dataframe_prep[i].values())[0]) # adding values of each episode to list
             i += 1
-        df_hrv[name] = name_list
+        df_hrv[name] = name_list # creating new columns in df of each episode
         j += 1
 
     return df_hrv
@@ -201,20 +201,19 @@ def HRV(intervals):
     print(get_poincare_plot_features(df["Inter"]))
     '''
 
-
-'''The Timesplit function just breaks the timestamps down into tuples
-    so they are easier to pass to the  other functions.
-    This function also prints the correlation between the bioharness
-    and polar by taking values within every minute and creating an array
-'''
-
 def interpolate(bio, polar):
-    bio['Inter'] = interpolate_nan_values(list(bio['rr_avec']))
+    bio['Inter'] = interpolate_nan_values(list(bio['rr_avec'])) # new column of interpolated values
     polar['Inter'] = interpolate_nan_values(list(polar['rr_avec']))
 
     return bio, polar
 
 def Timesplit(polar, bio):
+    '''The Timesplit function just breaks the timestamps down into tuples
+        so they are easier to pass to the  other functions.
+
+        This function also prints the correlation between the bioharness
+        and polar by taking values within every minute and creating an array
+    '''
     times = []
     time_tuples = [] # time_tuples is the list of time tuples
     for date in polar.index:
@@ -230,7 +229,7 @@ def Timesplit(polar, bio):
     start = int(time_tuples[0][1]) #start time
     end = int(time_tuples[-1][1]) # finish ime
     num = start
-    count = 0
+    count = 0 # number of polar values
     while i < len(time_tuples) and num < end:
         if int(time_tuples[i][1]) != num:
             list.append(get_index(time_tuples[i], bio, count, polar, i))
@@ -243,7 +242,7 @@ def Timesplit(polar, bio):
 
         corrlist = [] # list of correlation coefficients
         for g in list:
-            if isinstance(g, float):
+            if isinstance(g, float): # if its a float add it to the corrlist
                 corrlist.append(g)
 
 def get_index(timer, bio, count, polar, polar_index):
@@ -269,7 +268,7 @@ def get_index(timer, bio, count, polar, polar_index):
             The correlation between the polar and Bioharness
     """
     times = []
-    a = []
+    a = [] # list of (H, M, S) tuples
     for date in bio.index:
         times.append(str(date).strip().split()[1]) # adding bio times to list
 
@@ -280,7 +279,7 @@ def get_index(timer, bio, count, polar, polar_index):
     i = 0
     while i < len(a):
         if int(a[i][1]) == int(timer[1]): # if bio time and polar time are starting at the same minute
-            return correlation(i, count, bio, polar, polar_index) # find correlation og that minute
+            return correlation(i, count, bio, polar, polar_index) # find correlation of values in that minute
             break
         i += 1
 
