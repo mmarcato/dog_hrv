@@ -1,4 +1,6 @@
 from matplotlib import pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 # Function to plot polar graph
 def raw_avec(df, device):
@@ -18,19 +20,23 @@ def polar_bio(polar, bio, column):
 
 def all_plot(df, device):
     plt.scatter(df.index, df['rr_raw'], label = 'Raw data')
-    plt.scatter(df.index, df['Inter'], label = 'Interpolated data')
-    plt.scatter(df.index, df['rr_avec'], label = 'AVEC data')
+    plt.scatter(df.index, df['Inter'], label = 'Cleaned data')
+    #plt.scatter(df.index, df['rr_avec'], label = 'AVEC data')
+    plt.xlabel('Time')
+    plt.ylabel('IBI values')
     plt.legend()
-    plt.title("{} Graph".format(device))
+    plt.title("IBI values of the {} Device".format(device))
     plt.show()
 
 def hrv_plot(bio, polar):
-    i = 18#########################
+    i = 16 #########################
     while i < len(bio.columns):
-        plt.scatter(bio['episodes'], bio[bio.columns[i]], label =  'Bioharness data')
-        plt.scatter(polar['episodes'], polar[polar.columns[i]], label =  'Polar data')
+
+        pd.crosstab(bio[bio.columns[i]], polar[polar.columns[i]]).plot(kind='bar')
+        #plt.bar(bio['episodes'], bio[bio.columns[i]], label =  'Bioharness data')
+        #plt.bar(polar['episodes'], polar[polar.columns[i]], label =  'Polar data')
         plt.legend()
         plt.title("{} - Bio Vs Polar".format(bio.columns[i]))
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=90)
         plt.show()
         i += 1

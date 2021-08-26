@@ -41,10 +41,11 @@ def main():
     plots.polar_bio(df_polar, df_bio, 'rr_avec')
     # Interpolation Plot
     plots.polar_bio(df_polar, df_bio, 'Inter')
-    # All plot
-    plots.all_plot(df_polar, 'Polar')
-    plots.all_plot(df_bio, 'Bio')
     '''
+    # All plot
+    #plots.all_plot(df_polar, 'Polar')
+    #plots.all_plot(df_bio, 'Bioharness')
+
     #Timesplit(df_polar, df_bio)
     #HRV(df_polar)
 
@@ -124,10 +125,12 @@ def slide_hrv(df_ep, finish_time, df):
                 intervals.append(list(df['Inter'])[i])
             i += 1
         '''
+        # tests
         print('HRV Analysis for {}'.format(episodes[clock]))
         print('Start time:{}'.format(times[clock]))
         print('End time: {}'.format(times[clock + 1]))
         '''
+        #checking if length of list is greater than 1 and is not an interval
         if len(intervals) > 1 and episodes[clock] != 'interval':
             dataframe_prep.append(HRV(intervals))
             ep_list.append(episodes[clock])
@@ -140,13 +143,12 @@ def slide_hrv(df_ep, finish_time, df):
     df_hrv['start'] = start_list # adding start times to df_hrv
 
     fin_list = start_list # list of finish times of each episode for df use
-    fin_list.pop(0)
-    fin_list.append(finish_time)
+    fin_list.pop(0) #remove start time
+    fin_list.append(finish_time) # add overall finish time
 
     df_hrv['finish'] = fin_list # adding finish times to df_hrv
 
     j = 0
-    #print(dataframe_prep[0])
     while j < len(dataframe_prep[0]):
         name = list(dataframe_prep[j].keys())[j]
         name_list = []
@@ -189,7 +191,6 @@ def bio_hrv(df, dir, subject, dc, filename):
     df.to_csv(path, index=True)
 
 # Calculate HRV Analysis
-# More parameters? dog, dc
 def HRV(intervals):
     return get_time_domain_features(intervals)
     #print(get_frequency_domain_features(intervals))
@@ -215,62 +216,96 @@ def interpolate(bio, polar):
 
 def Timesplit(polar, bio):
     times = []
-    time_tuples = [] # a is the list of time tuples
+    time_tuples = [] # time_tuples is the list of time tuples
     for date in polar.index:
-        times.append(str(date).strip().split()[1])
+        times.append(str(date).strip().split()[1]) #add all times to times list
 
     for time in times:
-        (H, M, S) = time.split(':')
-        time_tuples.append((H, M, S))
+        (H, M, S) = time.split(':') #splitting the time into a tuple of hours minutes and seconds
+        time_tuples.append((H, M, S)) # adding tuple times to list
 
     i = 0
     timestamp = []
     list = []
-    start = int(time_tuples[0][1])
-    end = int(time_tuples[-1][1])
+    start = int(time_tuples[0][1]) #start time
+    end = int(time_tuples[-1][1]) # finish ime
     num = start
     count = 0
     while i < len(time_tuples) and num < end:
         if int(time_tuples[i][1]) != num:
             list.append(get_index(time_tuples[i], bio, count, polar, i))
             num += 1
-            count = 0
+            count = 0 # number of polar values in any one minute
             start_time = time_tuples[i]
         if int(time_tuples[i][1]) == num:
             count += 1
         i += 1
 
-        corrlist = []
+        corrlist = [] # list of correlation coefficients
         for g in list:
             if isinstance(g, float):
                 corrlist.append(g)
-    #print(len(corrlist))
-    #correlation = sum(corrlist) / len(corrlist)
-    #print('The correlation between the polar and bioharness is {}'.format(correlation))
 
-'''The get_indx function gets the index of the start of each minute of the polar device
-'''
 def get_index(timer, bio, count, polar, polar_index):
+    """
+    The get_index function gets the index of the start of each minute of the polar device
+
+    Parameters
+        -------
+        timer :
+            list of polar time tuples
+        bio : DataFrame
+            bioharness df
+        count : int
+
+        polar : DataFrame
+            polar df
+        polar_index : int
+            index of the start of each minute
+
+    Returns
+        -------
+        correlation: float
+            The correlation between the polar and Bioharness
+    """
     times = []
     a = []
     for date in bio.index:
-        times.append(str(date).strip().split()[1])
+        times.append(str(date).strip().split()[1]) # adding bio times to list
 
     for time in times:
-        (H, M, S) = time.split(':')
+        (H, M, S) = time.split(':') # spliting bio times into HMS and adding to another list of tuples
         a.append((H, M, S))
 
     i = 0
     while i < len(a):
-        if int(a[i][1]) == int(timer[1]):
-            return correlation(i, count, bio, polar, polar_index)
+        if int(a[i][1]) == int(timer[1]): # if bio time and polar time are starting at the same minute
+            return correlation(i, count, bio, polar, polar_index) # find correlation og that minute
             break
         i += 1
 
-''' correlation gets the correlation coefficient and passes it back to the
-    Timesplit funciton
-'''
 def correlation(index, count, bio, polar, polar_index):
+    """
+    The correlation function gets the correlation coefficient of the polar vs bio
+
+    Parameters
+        -------
+        index :
+            index of the start of each minute of the polar
+        count : int
+            number of values in polar list
+        bio : DataFrame3
+            bioharness df
+        polar : DataFrame
+            polar df
+        polar_index : int
+            index of the start of each minute
+
+    Returns
+        -------
+        correlation: float
+            The correlation between the polar and Bioharness
+    """
     corrlist = []
     bio_inter = list(bio["Inter"])
     polar_inter = list(polar["Inter"])
@@ -279,15 +314,15 @@ def correlation(index, count, bio, polar, polar_index):
     bio_list = []
     n = 0
     while n < len(bio_inter):
-        if index + count > len(bio):
+        if index + count > len(bio): # if the polar list has more values than the bio, break
             break
         else:
-            bio_list = bio_inter[index: index + count]
+            bio_list = bio_inter[index: index + count] # otherwise create a list of values that that is the same length as the polar list
         n += 1
-    if len(polar_list) == len(bio_list):
-        corcoef, p_value = pearsonr(bio_list, polar_list)
+    if len(polar_list) == len(bio_list): # making sure both lists are they same size
+        corcoef, p_value = pearsonr(bio_list, polar_list) # get the correlation coefficient
 
-        return corcoef
+        return corcoef # return it back to get_index function
 
 # polar raw and avec
 def polar_avec(df, dir, subject, dc, filename):
