@@ -19,11 +19,11 @@ def polar_bio(polar, bio, column):
     plt.show()
 
 def all_plot(df, device):
-    plt.scatter(df.index, df['rr_raw'], label = 'Raw data')
-    plt.scatter(df.index, df['Inter'], label = 'Cleaned data')
+    plt.scatter(df.index, df['rr_raw'], label = 'Raw IBI data')
+    plt.scatter(df.index, df['Inter'], label = 'Interpolated IBI data')
     #plt.scatter(df.index, df['rr_avec'], label = 'AVEC data')
     plt.xlabel('Time')
-    plt.ylabel('IBI values')
+    plt.ylabel('IBI values (ms)')
     plt.legend()
     plt.title("IBI values of the {} Device".format(device))
     plt.show()

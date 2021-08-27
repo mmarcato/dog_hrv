@@ -21,6 +21,7 @@ def main():
     # selecting data between start and finish times
     df_polar = df_polar.between_time(start_time, finish_time)
     df_bio = df_bio.between_time(start_time, finish_time)
+    print(len(df_bio.index))
 
     #timing the program
     #start = time()
@@ -44,7 +45,7 @@ def main():
     '''
     # All plot
     #plots.all_plot(df_polar, 'Polar')
-    #plots.all_plot(df_bio, 'Bioharness')
+    plots.all_plot(df_bio, 'Bioharness')
 
     #Timesplit(df_polar, df_bio)
     #HRV(df_polar)
@@ -65,7 +66,7 @@ def main():
     #polar_hrv(df_polar_hrv, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
     #bio_hrv(df_bio_hrv, projectdir, "Edrick", "1", '2019-6-13_RR_Edrick.csv')
 
-    plots.hrv_plot(df_bio_hrv, df_polar_hrv)
+    #plots.hrv_plot(df_bio_hrv, df_polar_hrv)
 
     # read the nested dictionary ['Dog', 'DC'] containing, the timestamps where the episodes happen as a dataframe where columns ['Episode', 'Timestamp']
 
